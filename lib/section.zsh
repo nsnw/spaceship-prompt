@@ -6,29 +6,36 @@ spaceship_prompt_opened="$SPACESHIP_PROMPT_FIRST_PREFIX_SHOW"
 #   spaceship::section <color> [prefix] <content> [suffix]
 spaceship::section() {
   local color prefix content suffix
-  [[ -n $1 ]] && color="%F{$1}"  || color="%f"
+  #[[ -n $1 ]] && color="%F{$1}"  || color="%f"
+  [[ -n $1 ]] && color="$1"      || color="%f"
   [[ -n $2 ]] && prefix="$2"     || prefix=""
   [[ -n $3 ]] && content="$3"    || content=""
   [[ -n $4 ]] && suffix="$4"     || suffix=""
 
+  # If the value for the colour begins with a '%', then assume it's multiple colour options.
+  # Otherwise, wrap the value in %F{<value>}.
+  if [[ ${color[1]} != "%" ]]; then
+    color="%F{$1}"
+  fi
+
   [[ -z $3 && -z $4 ]] && content=$2 prefix=''
 
-  echo -n "%{%B%}" # set bold
+  #echo -n "%{%B%}" # set bold
   if [[ $spaceship_prompt_opened == true ]] && [[ $SPACESHIP_PROMPT_PREFIXES_SHOW == true ]]; then
     echo -n "$prefix"
   fi
   spaceship_prompt_opened=true
   echo -n "%{%b%}" # unset bold
 
-  echo -n "%{%B$color%}" # set color
+  echo -n "%{$color%}" # set color
   echo -n "$content"     # section content
-  echo -n "%{%b%f%}"     # unset color
+  echo -n "%{%b%f%k%}"     # unset color
 
-  echo -n "%{%B%}" # reset bold, if it was diabled before
+  #echo -n "%{%B%}" # reset bold, if it was diabled before
   if [[ $SPACESHIP_PROMPT_SUFFIXES_SHOW == true ]]; then
     echo -n "$suffix"
   fi
-  echo -n "%{%b%}" # unset bold
+  echo -n "%{%b%f%k%}"     # unset color
 }
 
 # Compose whole prompt from sections
