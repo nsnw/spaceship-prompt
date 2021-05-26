@@ -28,10 +28,24 @@ spaceship_aws() {
   # Is the current profile not the default profile
   [[ -z $AWS_PROFILE ]] || [[ "$AWS_PROFILE" == "default" ]] && return
 
+  if [[ ! -z ${AWS_OKTA_SESSION_EXPIRATION} ]]; then
+    NOW=$(date +"%s")
+
+    # Expired?
+    if [[ ${NOW} -ge ${AWS_OKTA_SESSION_EXPIRATION} ]]; then
+      EXPIRES="%{%b%}(expired)"
+    else
+      SECONDS_LEFT=$(( ${AWS_OKTA_SESSION_EXPIRATION} - ${NOW} ))
+      EXPIRES="%{%b%}($(spaceship::displaytime ${SECONDS_LEFT}))"
+    fi
+  else
+    EXPIRES=""
+  fi
+
   # Show prompt section
   spaceship::section \
     "$SPACESHIP_AWS_COLOR" \
     "$SPACESHIP_AWS_PREFIX" \
-    "${SPACESHIP_AWS_SYMBOL}$AWS_PROFILE" \
+    "${SPACESHIP_AWS_SYMBOL}$AWS_PROFILE ${EXPIRES}" \
     "$SPACESHIP_AWS_SUFFIX"
 }
